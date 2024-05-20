@@ -1,26 +1,53 @@
 #include "custom_exceptions.h"
 #include "queries.h"
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <sqlite3.h>
 #include <stdio.h>
 
-void createTables() {
+int main(void) {
     sqlite3* client;
     char* error;
 
-    if (sqlite3_open("database.db", &client))
-        throw DatabaseException("can't open database\n");
-
-    if (sqlite3_exec(client, create_guest_table, 0, 0, &error))
-        throw DatabaseException("can't create guest table\n");
-}
-
-int main(void) {
     try {
-        createTables();
+        initTables(client, error);
     } catch (const DatabaseException& e) {
+        sqlite3_free(error);
         std::cerr << e.what();
+        sqlite3_close(client);
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    u_int16_t action;
+    while (true) {
+        std::cout << "Выберите действие, которое хотите совершить:\n";
+        std::cout << "0. - выйти из приложения\n";
+        std::cout << "1. - создать карточку гостя\n";
+        std::cout << "2. - заселить гостя в комнату\n";
+        std::cout << "3. - записать гостя на лечебные процедуры\n";
+        std::cout << "4. - выселить гостя\n";
+        std::cout << "5. - рассчитать гостя\n";
+
+        if (!(std::cin >> action)) {
+            // если пользователь ввел не число
+            std::cout << "Некорректный ввод\n";
+            std::cin.clear(); // удаляем код ошибки
+            // игнорируем все символы до переноса строки
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+
+        switch (action) {
+        case 0:
+            std::cout << "Выход из приложения\n";
+            return EXIT_SUCCESS;
+
+        default:
+            std::cout << "Данной команды не существует\n";
+            break;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
