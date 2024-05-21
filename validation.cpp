@@ -1,0 +1,54 @@
+#include "validation.h"
+
+void inputPassport(std::istream& is, uint64_t& passport_number) {
+    std::cout << "Введите номер паспорта:\n";
+    while (true) {
+        if (!(is >> passport_number)) {
+            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
+            is.clear();
+            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        } else
+            break;
+    }
+    // удаляем \n из потока
+    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+bool isValidDate(uint16_t day, uint16_t month, uint16_t year) {
+    // Проверка на корректность года
+    if (year < 1900 || year > 9999) {
+        return false;
+    }
+
+    // Проверка на корректность месяца
+    if (month < 1 || month > 12) {
+        return false;
+    }
+
+    // Проверка на корректность дня
+    if (day < 1 || day > 31) {
+        return false;
+    }
+
+    // Дополнительная проверка для февраля (учет високосных годов)
+    if (month == 2) {
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+            if (day > 29) {
+                return false;
+            }
+        } else {
+            if (day > 28) {
+                return false;
+            }
+        }
+    }
+
+    // Проверка на корректность дня для месяцев с 30 днями
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        if (day > 30) {
+            return false;
+        }
+    }
+
+    return true;
+}

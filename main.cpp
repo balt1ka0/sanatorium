@@ -19,7 +19,7 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    u_int16_t action;
+    uint16_t action;
     while (true) {
         std::cout << "Выберите действие, которое хотите совершить:\n";
         std::cout << "0. - выйти из приложения\n";
@@ -38,21 +38,44 @@ int main(void) {
             continue;
         }
 
-        switch (action) {
-        case 0:
-            std::cout << "Выход из приложения\n";
-            return EXIT_SUCCESS;
+        try {
+            switch (action) {
+            case 0:
+                std::cout << "Выход из приложения\n";
+                return EXIT_SUCCESS;
 
-        case 1:
-            std::cout << "Создание карточки\n";
-            createGuest(client, error);
-            break;
+            case 1:
+                std::cout << "Создание карточки\n";
+                createGuest(client, error);
+                break;
 
-        default:
-            std::cout << "Данной команды не существует\n";
-            break;
+            case 2:
+                std::cout << "Заселение в комнату:\n";
+                createRoom(client, error);
+                break;
+
+            case 3:
+                std::cout << "Запись гостя на лечебные процедуры:\n";
+                createService(client, error);
+                break;
+
+            case 4:
+                std::cout << "Выселение гостя\n";
+                checkOutGuest(client, error);
+                break;
+
+            default:
+                std::cout << "Данной команды не существует\n";
+                break;
+            }
+        } catch (const DatabaseException& e) {
+            sqlite3_free(error);
+            std::cerr << e.what();
+            sqlite3_close(client);
+            return EXIT_FAILURE;
         }
     }
 
+    sqlite3_close(client);
     return EXIT_SUCCESS;
 }

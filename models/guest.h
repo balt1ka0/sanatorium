@@ -1,7 +1,9 @@
 #pragma once
 
+#include "../validation.h"
 #include <algorithm>
 #include <cstdint>
+#include <format>
 #include <iostream>
 #include <istream>
 #include <limits>
@@ -18,6 +20,7 @@ class Guest {
     Guest();
     Guest(uint64_t passport_number, const std::string& last_name, const std::string& first_name,
           const std::string& patronymic);
+    std::string getInsertQuery();
 
     friend std::istream& operator>>(std::istream& is, Guest& guest);
 };

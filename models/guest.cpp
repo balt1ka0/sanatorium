@@ -7,17 +7,7 @@ Guest::Guest(uint64_t passport_number, const std::string& last_name, const std::
     : passport_number {passport_number}, last_name {last_name}, first_name {first_name}, patronymic {patronymic} {}
 
 std::istream& operator>>(std::istream& is, Guest& guest) {
-    std::cout << "Введите номер паспорта:\n";
-    while (true) {
-        if (!(is >> guest.passport_number)) {
-            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
-            is.clear();
-            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        } else
-            break;
-    }
-    // удаляем \n из потока
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    inputPassport(is, guest.passport_number);
 
     std::cout << "Введите фамилию:\n";
     while (true) {
@@ -47,6 +37,11 @@ std::istream& operator>>(std::istream& is, Guest& guest) {
     }
 
     return is;
+}
+
+std::string Guest::getInsertQuery() {
+    return std::format("INSERT INTO guest VALUES ('{}', '{}', '{}', '{}');", passport_number, last_name, first_name,
+                       patronymic);
 }
 
 bool checkName(const std::string& name) {

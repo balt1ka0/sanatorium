@@ -6,6 +6,9 @@ add_executable(sanatorium main.cpp
         custom_exceptions.h
         queries.cpp
         models/guest.cpp
+        models/room.cpp
+        models/service.cpp
+        validation.cpp
 )
 
 target_link_libraries(sanatorium sqlite3)

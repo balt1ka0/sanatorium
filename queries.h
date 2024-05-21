@@ -2,6 +2,8 @@
 
 #include "custom_exceptions.h"
 #include "models/guest.h"
+#include "models/room.h"
+#include "models/service.h"
 #include <cstdint>
 #include <iostream>
 #include <sqlite3.h>
@@ -36,3 +38,17 @@ void initTables(sqlite3*& client, char*& error);
 
 // создает нового гостя в таблице guest
 void createGuest(sqlite3*& client, char*& error);
+
+// проверяет, существует ли гость в таблице guest
+bool checkGuest(sqlite3*& client, char*& error, u_int64_t passport_number);
+
+// эта функция применяется для каждого найденного ряда запроса
+// SELECT EXISTS(SELECT 1 FROM guest WHERE passport_number = {});
+int proccesGuestExistsQuery(void* data, int argc, char** field_values, char** field_names);
+
+// заселяет гостя
+void createRoom(sqlite3*& client, char*& error);
+
+void createService(sqlite3*& client, char*& error);
+
+void checkOutGuest(sqlite3*& client, char*& error);
