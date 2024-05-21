@@ -43,6 +43,11 @@ int main(void) {
             std::cout << "Выход из приложения\n";
             return EXIT_SUCCESS;
 
+        case 1:
+            std::cout << "Создание карточки\n";
+            createGuest(client, error);
+            break;
+
         default:
             std::cout << "Данной команды не существует\n";
             break;

@@ -4,6 +4,13 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(sanatorium main.cpp
         custom_exceptions.h
-        queries.cpp)
+        queries.cpp
+        models/guest.cpp
+)
 
 target_link_libraries(sanatorium sqlite3)
+
+target_include_directories(${PROJECT_NAME}
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        ${PROJECT_NAME}/models
+        )

@@ -15,3 +15,8 @@ void initTables(sqlite3*& client, char*& error) {
 
     std::cout << "База данных успешно инициализирована\n";
 }
+
+void createGuest(sqlite3*& client, char*& error) {
+    Guest new_guest {};
+    std::cin >> new_guest;
+}

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "custom_exceptions.h"
+#include "models/guest.h"
+#include <cstdint>
 #include <iostream>
 #include <sqlite3.h>
 
@@ -31,3 +33,6 @@ inline constexpr char CREATE_SERVICE_TABLE[] {
 
 // открывает базу данных, если ее нет, то создает ее и все нужные таблицы
 void initTables(sqlite3*& client, char*& error);
+
+// создает нового гостя в таблице guest
+void createGuest(sqlite3*& client, char*& error);

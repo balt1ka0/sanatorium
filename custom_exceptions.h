@@ -3,7 +3,7 @@
 #include <exception>
 
 class DatabaseException : public std::exception {
-  private:
+  protected:
     const char* message;
 
   public:
