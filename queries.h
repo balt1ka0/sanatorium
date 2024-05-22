@@ -5,8 +5,11 @@
 #include "models/room.h"
 #include "models/service.h"
 #include <cstdint>
+#include <iomanip>
 #include <iostream>
+#include <ostream>
 #include <sqlite3.h>
+#include <vector>
 
 namespace CreateQueries {
 
@@ -40,15 +43,33 @@ void initTables(sqlite3*& client, char*& error);
 void createGuest(sqlite3*& client, char*& error);
 
 // проверяет, существует ли гость в таблице guest
-bool checkGuest(sqlite3*& client, char*& error, u_int64_t passport_number);
-
+bool checkGuest(sqlite3*& client, char*& error, uint64_t passport_number);
+Guest getGuestNameFromPassport(sqlite3*& client, char*& error, uint64_t passport_number);
 // эта функция применяется для каждого найденного ряда запроса
-// SELECT EXISTS(SELECT 1 FROM guest WHERE passport_number = {});
-int proccesGuestExistsQuery(void* data, int argc, char** field_values, char** field_names);
-
+// SELECT EXISTS;
+int processExistsQuery(void* data, int argc, char** field_values, char** field_names);
+int processGuestQuery(void* data, int argc, char** field_values, char** field_names);
 // заселяет гостя
 void createRoom(sqlite3*& client, char*& error);
 
 void createService(sqlite3*& client, char*& error);
 
 void checkOutGuest(sqlite3*& client, char*& error);
+
+bool checkOutDate(sqlite3*& client, char*& error, uint64_t passport_number, const std::string& check_out_date);
+
+void payment(sqlite3*& client, char*& error);
+int processDateQuery(void* data, int argc, char** field_values, char** field_names);
+
+struct Date {
+    std::string check_in_date, check_out_date;
+    uint16_t date_diff;
+};
+std::ostream& operator<<(std::ostream& os, const Date& date);
+
+std::vector<Service> getServiceFromPeriod(sqlite3*& client, char*& error, uint64_t passport_number,
+                                          const std::string& check_in_date, const std::string& check_out_date);
+
+int processServiceQuery(void* data, int argc, char** field_values, char** field_names);
+
+void getGuestData(sqlite3*& client, char*& error);

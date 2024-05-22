@@ -6,6 +6,14 @@ Guest::Guest(uint64_t passport_number, const std::string& last_name, const std::
              const std::string& patronymic)
     : passport_number {passport_number}, last_name {last_name}, first_name {first_name}, patronymic {patronymic} {}
 
+void Guest::GetDataFromQuery(char** data) {
+    first_name = data[0];
+    last_name = data[1];
+    patronymic = data[2];
+}
+
+bool Guest::isInitialized() const { return !first_name.empty(); }
+
 std::istream& operator>>(std::istream& is, Guest& guest) {
     inputPassport(is, guest.passport_number);
 
@@ -39,7 +47,16 @@ std::istream& operator>>(std::istream& is, Guest& guest) {
     return is;
 }
 
-std::string Guest::getInsertQuery() {
+std::ostream& operator<<(std::ostream& os, const Guest& guest) {
+    os << "Данные пользователя: ";
+    os << guest.last_name << ' ' << guest.first_name;
+    if (!guest.patronymic.empty())
+        os << ' ' << guest.patronymic;
+    os << '\n';
+    return os;
+}
+
+std::string Guest::getInsertQuery() const {
     return std::format("INSERT INTO guest VALUES ('{}', '{}', '{}', '{}');", passport_number, last_name, first_name,
                        patronymic);
 }

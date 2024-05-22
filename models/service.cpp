@@ -2,9 +2,14 @@
 
 Service::Service() : passport_number {}, service_name {}, cost {}, date {} {}
 
+Service::Service(char* service_name, uint32_t cost, char* date)
+    : passport_number {}, service_name {service_name}, cost {cost}, date {date} {}
+
 uint64_t Service::getPassportNumber() { return passport_number; }
 
-std::string Service::getInsertQuery() {
+uint32_t Service::getCost() const { return cost; }
+
+std::string Service::getInsertQuery() const {
     return std::format(
         "INSERT INTO service (passport_number, service_name, cost, date) VALUES ('{}', '{}', '{}', '{}');",
         passport_number, service_name, cost, date);
@@ -27,7 +32,7 @@ std::istream& operator>>(std::istream& is, Service& service) {
     }
     is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    std::cout << "Введите дату заезда в формате yyyy-mm-dd:\n";
+    std::cout << "Введите дату записи в формате yyyy-mm-dd:\n";
     uint16_t day, month, year;
     while (true) {
         std::getline(is, service.date);
@@ -39,4 +44,9 @@ std::istream& operator>>(std::istream& is, Service& service) {
     }
 
     return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Service& service) {
+    os << service.service_name << ' ' << service.date << ' ' << service.cost << '\n';
+    return os;
 }

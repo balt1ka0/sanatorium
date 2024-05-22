@@ -28,6 +28,7 @@ int main(void) {
         std::cout << "3. - записать гостя на лечебные процедуры\n";
         std::cout << "4. - выселить гостя\n";
         std::cout << "5. - рассчитать гостя\n";
+        std::cout << "6. - получить данные о госте за все время\n";
 
         if (!(std::cin >> action)) {
             // если пользователь ввел не число
@@ -62,6 +63,16 @@ int main(void) {
             case 4:
                 std::cout << "Выселение гостя\n";
                 checkOutGuest(client, error);
+                break;
+
+            case 5:
+                std::cout << "Оплата\n";
+                payment(client, error);
+                break;
+
+            case 6:
+                std::cout << "Данные о госте за все время\n";
+                getGuestData(client, error);
                 break;
 
             default:

@@ -6,18 +6,22 @@
 #include <iostream>
 #include <istream>
 #include <limits>
+#include <ostream>
 #include <string>
 
 class Service {
   protected:
     uint64_t passport_number;
     std::string service_name;
-    uint16_t cost;
+    uint32_t cost;
     std::string date;
 
   public:
     Service();
+    Service(char* service_name, uint32_t cost, char* date);
     uint64_t getPassportNumber();
-    std::string getInsertQuery();
+    std::string getInsertQuery() const;
+    uint32_t getCost() const;
     friend std::istream& operator>>(std::istream& is, Service& service);
+    friend std::ostream& operator<<(std::ostream& os, const Service& service);
 };
