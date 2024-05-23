@@ -1,17 +1,58 @@
 #include "validation.h"
 
-void inputPassport(std::istream& is, uint64_t& passport_number) {
+uint64_t getPassportNumberForCreation(sqlite3*& client, char*& error) {
+    uint64_t passport_number;
     std::cout << "Введите номер паспорта:\n";
     while (true) {
-        if (!(is >> passport_number)) {
+        if (!(std::cin >> passport_number)) {
             std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
-            is.clear();
-            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        } else
-            break;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        } else {
+            if (!checkGuest(client, error, passport_number))
+                break;
+            else
+                std::cout << "Пользователь с таким паспортом уже существует, повторите ввод:\n";
+        }
     }
-    // удаляем \n из потока
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return passport_number;
+}
+
+uint64_t getPassportNumberForInsertion(sqlite3*& client, char*& error) {
+    uint64_t passport_number;
+    std::cout << "Введите номер паспорта:\n";
+    while (true) {
+        if (!(std::cin >> passport_number)) {
+            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        } else {
+            if (checkGuest(client, error, passport_number))
+                break;
+            else
+                std::cout << "Пользователь с таким паспортом не существует, повторите ввод:\n";
+        }
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return passport_number;
+}
+
+bool checkGuest(sqlite3*& client, char*& error, uint64_t passport_number) {
+    std::string query {std::format("SELECT EXISTS(SELECT 1 FROM guest WHERE passport_number = {});", passport_number)};
+    bool is_exists;
+
+    if (sqlite3_exec(client, query.c_str(), processExistsQuery, &is_exists, &error))
+        throw DatabaseException("Ошибка при запросе на существование пользователя");
+
+    return is_exists;
+}
+
+int processExistsQuery(void* data, int argc, char** field_values, char** field_names) {
+    *(bool*)data = argc && std::stoi(field_values[0]) == 1;
+    return 0;
 }
 
 bool isValidDate(uint16_t day, uint16_t month, uint16_t year) {

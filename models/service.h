@@ -22,6 +22,7 @@ class Service {
     uint64_t getPassportNumber();
     std::string getInsertQuery() const;
     uint32_t getCost() const;
+    void setPassportNumber(uint64_t passport_number);
     friend std::istream& operator>>(std::istream& is, Service& service);
     friend std::ostream& operator<<(std::ostream& os, const Service& service);
 };

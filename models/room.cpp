@@ -9,9 +9,9 @@ std::string Room::getInsertQuery() {
                        passport_number, room_number, check_in_date);
 }
 
-std::istream& operator>>(std::istream& is, Room& room) {
-    inputPassport(is, room.passport_number);
+void Room::setPassportNumber(uint64_t passport_number) { this->passport_number = passport_number; }
 
+std::istream& operator>>(std::istream& is, Room& room) {
     std::cout << "Введите номер комнаты:\n";
     while (true) {
         if (!(is >> room.room_number)) {

@@ -15,9 +15,9 @@ std::string Service::getInsertQuery() const {
         passport_number, service_name, cost, date);
 }
 
-std::istream& operator>>(std::istream& is, Service& service) {
-    inputPassport(is, service.passport_number);
+void Service::setPassportNumber(uint64_t passport_number) { this->passport_number = passport_number; }
 
+std::istream& operator>>(std::istream& is, Service& service) {
     std::cout << "Введите название услуги:\n";
     std::getline(is, service.service_name);
 

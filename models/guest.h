@@ -24,9 +24,8 @@ class Guest {
     std::string getInsertQuery() const;
     void GetDataFromQuery(char** data);
     bool isInitialized() const;
+    void setPassportNumber(uint64_t passport_number);
 
     friend std::istream& operator>>(std::istream& is, Guest& guest);
     friend std::ostream& operator<<(std::ostream& os, const Guest& guest);
 };
-
-bool checkName(const std::string& name);

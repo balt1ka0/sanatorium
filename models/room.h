@@ -18,5 +18,6 @@ class Room {
     Room();
     uint64_t getPassportNumber();
     std::string getInsertQuery();
+    void setPassportNumber(uint64_t passport_number);
     friend std::istream& operator>>(std::istream& is, Room& room);
 };

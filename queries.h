@@ -42,12 +42,11 @@ void initTables(sqlite3*& client, char*& error);
 // создает нового гостя в таблице guest
 void createGuest(sqlite3*& client, char*& error);
 
-// проверяет, существует ли гость в таблице guest
-bool checkGuest(sqlite3*& client, char*& error, uint64_t passport_number);
+// true если пользователь с таким паспортом существет в guest
+
 Guest getGuestNameFromPassport(sqlite3*& client, char*& error, uint64_t passport_number);
 // эта функция применяется для каждого найденного ряда запроса
-// SELECT EXISTS;
-int processExistsQuery(void* data, int argc, char** field_values, char** field_names);
+
 int processGuestQuery(void* data, int argc, char** field_values, char** field_names);
 // заселяет гостя
 void createRoom(sqlite3*& client, char*& error);

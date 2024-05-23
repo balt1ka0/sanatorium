@@ -16,34 +16,17 @@ void initTables(sqlite3*& client, char*& error) {
     std::cout << "База данных успешно инициализирована\n";
 }
 
-// функции для создания пользователя
-
+// функци для создания пользователя
 void createGuest(sqlite3*& client, char*& error) {
     Guest new_guest {};
+    new_guest.setPassportNumber(getPassportNumberForCreation(client, error));
     std::cin >> new_guest;
+
     std::string query {new_guest.getInsertQuery()};
-    int32_t result {sqlite3_exec(client, query.c_str(), 0, 0, &error)};
-
-    if (result) {
-        if (result == SQLITE_CONSTRAINT) {
-            std::cout << "Пользователь с таким паспортом уже существует!";
-            return;
-        }
-
+    if (sqlite3_exec(client, query.c_str(), 0, 0, &error))
         throw DatabaseException("Ошибка при создании нового пользователя");
-    }
 
     std::cout << "Гость успешно создан.\n";
-}
-
-bool checkGuest(sqlite3*& client, char*& error, uint64_t passport_number) {
-    std::string query {std::format("SELECT EXISTS(SELECT 1 FROM guest WHERE passport_number = {});", passport_number)};
-    bool is_exists;
-
-    if (sqlite3_exec(client, query.c_str(), processExistsQuery, &is_exists, &error))
-        throw DatabaseException("Ошибка при запросе на существование пользователя");
-
-    return is_exists;
 }
 
 Guest getGuestNameFromPassport(sqlite3*& client, char*& error, uint64_t passport_number) {
@@ -57,11 +40,6 @@ Guest getGuestNameFromPassport(sqlite3*& client, char*& error, uint64_t passport
     return guest;
 }
 
-int processExistsQuery(void* data, int argc, char** field_values, char** field_names) {
-    *(bool*)data = argc && std::stoi(field_values[0]) == 1;
-    return 0;
-}
-
 int processGuestQuery(void* data, int argc, char** field_values, char** field_names) {
     if (argc) {
         ((Guest*)data)->GetDataFromQuery(field_values);
@@ -69,23 +47,10 @@ int processGuestQuery(void* data, int argc, char** field_values, char** field_na
     return 0;
 }
 
-/*
-int proccesGuestExistsQuery(void* data, int argc, char** field_values, char** field_names) {
-    for (auto i {0}; i != argc; ++i) {
-        std::cout << field_values[i] << ' ' << field_names[i] << ' ';
-    }
-    std::cout << '\n';
-    return 0;
-}*/
-
 void createRoom(sqlite3*& client, char*& error) {
     Room new_room {};
+    new_room.setPassportNumber(getPassportNumberForInsertion(client, error));
     std::cin >> new_room;
-
-    if (!checkGuest(client, error, new_room.getPassportNumber())) {
-        std::cout << "Гостя с таким паспортом не существует!\n";
-        return;
-    }
 
     if (sqlite3_exec(client, new_room.getInsertQuery().c_str(), 0, 0, &error))
         throw DatabaseException("Ошибка при заселении");
@@ -95,6 +60,7 @@ void createRoom(sqlite3*& client, char*& error) {
 
 void createService(sqlite3*& client, char*& error) {
     Service new_service {};
+    new_service.setPassportNumber(getPassportNumberForInsertion(client, error));
     std::cin >> new_service;
 
     if (!checkGuest(client, error, new_service.getPassportNumber())) {
@@ -109,22 +75,7 @@ void createService(sqlite3*& client, char*& error) {
 }
 
 void checkOutGuest(sqlite3*& client, char*& error) {
-    uint64_t passport_number;
-
-    std::cout << "Введите номер паспорта:\n";
-    while (true) {
-        if (!(std::cin >> passport_number)) {
-            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        } else {
-            if (!checkGuest(client, error, passport_number))
-                std::cout << "Гостя не существует!\n";
-            else
-                break;
-        }
-    }
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    uint64_t passport_number {getPassportNumberForInsertion(client, error)};
 
     std::string check_out_date;
     std::cout << "Введите дату выезда в формате yyyy-mm-dd:\n";
@@ -168,24 +119,8 @@ bool checkOutDate(sqlite3*& client, char*& error, uint64_t passport_number, cons
 
 void payment(sqlite3*& client, char*& error) {
     uint32_t cost_per_day {2000};
-    uint64_t passport_number;
-    Guest guest;
-
-    std::cout << "Введите номер паспорта:\n";
-    while (true) {
-        if (!(std::cin >> passport_number)) {
-            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        } else {
-            guest = getGuestNameFromPassport(client, error, passport_number);
-            if (!guest.isInitialized())
-                std::cout << "Пользователя с таким паспортом не существует!\n";
-            else
-                break;
-        }
-    }
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    uint64_t passport_number {getPassportNumberForInsertion(client, error)};
+    Guest guest {getGuestNameFromPassport(client, error, passport_number)};
 
     std::string query {std::format("SELECT check_in_date, check_out_date, JULIANDAY(check_out_date) - "
                                    "JULIANDAY(check_in_date) AS date_diff FROM room "
@@ -250,23 +185,8 @@ int processServiceQuery(void* data, int argc, char** field_values, char** field_
 }
 
 void getGuestData(sqlite3*& client, char*& error) {
-    uint64_t passport_number;
-    Guest guest;
-
-    std::cout << "Введите номер паспорта:\n";
-    while (true) {
-        if (!(std::cin >> passport_number)) {
-            std::cout << "Паспорт должен состоять только из чисел, повторите ввод:\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        } else {
-            guest = getGuestNameFromPassport(client, error, passport_number);
-            if (!guest.isInitialized())
-                std::cout << "Пользователя с таким паспортом не существует!\n";
-            else
-                break;
-        }
-    }
+    uint64_t passport_number {getPassportNumberForInsertion(client, error)};
+    Guest guest {getGuestNameFromPassport(client, error, passport_number)};
 
     std::string room_query {std::format("SELECT check_in_date, check_out_date FROM room "
                                         "WHERE passport_number = {};",
